@@ -1,0 +1,14 @@
+torch>=2.1
+torchvision>=0.16
+transformers>=4.56.0
+huggingface_hub
+opencv-python>=4.8
+numpy>=1.24
+scipy>=1.11
+pyyaml>=6.0
+tqdm
+matplotlib
+got10k
+rembg>=2.0
+# Fine stage (not on PyPI):
+# pip install git+https://github.com/cvg/LightGlue.git

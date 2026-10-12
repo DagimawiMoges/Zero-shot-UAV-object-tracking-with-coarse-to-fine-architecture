@@ -1,0 +1,35 @@
+Blihat: Training-Free Coarse-to-Fine UAV Object Tracking
+Copyright 2026 Dagimawi Moges Wakumo
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+-------------------------------------------------------------------------------
+Third-party components
+-------------------------------------------------------------------------------
+This repository does not include or redistribute any third-party model weights
+or datasets. The code downloads or uses the following components at runtime;
+each is governed by its own license, which you must review and accept
+separately. The Apache License 2.0 of this repository does not apply to them.
+
+- DINOv3 (Meta AI) - backbone weights loaded from Hugging Face
+  https://github.com/facebookresearch/dinov3 - DINOv3 License (gated download)
+
+- DINOv2 (Meta AI) - optional fallback backbone, loaded via torch.hub
+  https://github.com/facebookresearch/dinov2 - Apache License 2.0
+
+- LightGlue (ETH Zurich, Computer Vision and Geometry Group)
+  https://github.com/cvg/LightGlue - Apache License 2.0
+
+- SuperPoint weights (Magic Leap), used through the LightGlue package
+  https://github.com/magicleap/SuperPointPretrainedNetwork
+  Non-commercial research use only. Commercial use of this tracker's fine
+  stage requires a different keypoint extractor or a license from Magic Leap.
+
+- rembg / U^2-Net (background removal for template crops)
+  https://github.com/danielgatis/rembg - MIT License
+
+- got10k toolkit (benchmark evaluation)
+  https://github.com/got-10k/toolkit - MIT License
+
+Benchmark datasets (UAV123, UAV20L, DTB70) are not distributed with this
+repository and remain subject to the terms of their respective authors.

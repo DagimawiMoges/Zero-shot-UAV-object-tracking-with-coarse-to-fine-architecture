@@ -1,0 +1,35 @@
+backbone:
+  name: "dinov3_vitl16"
+  patch_size: 16
+  feature_layers: [8, 9, 10, 11]
+  coarse_layer_idx: -1
+  normalize_features: true
+coarse:
+  search_scale: 4.0
+  template_scale: 2.0
+  cosine_window_weight: 0.3
+  multi_scale_factors: [1.0]
+  peak_threshold: 0.15
+  psr_threshold: 2.0
+  sharpness_threshold: 1.15
+fine:
+  matcher: "lightglue"
+  max_keypoints: 1024
+  ransac_threshold: 3.0
+  ransac_method: "USAC_MAGSAC"
+  inlier_threshold_high: 0.5
+  inlier_threshold_low: 0.15
+  min_matches: 4
+  crop_scale: 2.0
+  area_ratio_bounds: [0.25, 4.0]
+tracking:
+  ema_position: 0.0
+  ema_size: 0.8
+  template_update_interval: 10
+  template_update_threshold: 0.6
+  template_update_alpha: 0.90
+  lost_threshold: 0.3
+  lost_patience: 5
+  velocity_smoothing: 3
+  matcher_every_n: 1
+device: "cuda"

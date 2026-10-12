@@ -1,0 +1,26 @@
+# UAV123 sequences with the largest target-size change (max/min) that the
+# coarse-only baseline tracks at least partly (AUC >= 0.1), <=1200 frames. For scale ablations.
+car16_1  # size x26.4, baseline AUC 0.232
+boat8  # size x20.9, baseline AUC 0.381
+boat6  # size x16.9, baseline AUC 0.344
+person19_1  # size x8.7, baseline AUC 0.413
+bike3  # size x8.2, baseline AUC 0.147
+wakeboard10  # size x6.8, baseline AUC 0.244
+car4_s  # size x6.8, baseline AUC 0.260
+truck1  # size x5.9, baseline AUC 0.217
+wakeboard1  # size x5.9, baseline AUC 0.370
+wakeboard3  # size x4.7, baseline AUC 0.176
+car7  # size x4.1, baseline AUC 0.166
+person8_1  # size x4.0, baseline AUC 0.494
+car6_3  # size x3.6, baseline AUC 0.492
+person3_s  # size x3.4, baseline AUC 0.454
+car6_4  # size x3.3, baseline AUC 0.524
+group3_2  # size x3.3, baseline AUC 0.130
+group3_4  # size x3.2, baseline AUC 0.345
+wakeboard2  # size x3.1, baseline AUC 0.108
+person14_1  # size x3.1, baseline AUC 0.128
+group2_3  # size x2.8, baseline AUC 0.144
+person8_2  # size x2.8, baseline AUC 0.575
+car1_1  # size x2.8, baseline AUC 0.370
+person7_1  # size x2.7, baseline AUC 0.165
+wakeboard7  # size x2.6, baseline AUC 0.316

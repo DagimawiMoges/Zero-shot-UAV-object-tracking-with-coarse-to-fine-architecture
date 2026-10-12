@@ -1,0 +1,42 @@
+# Config for AdaptiveTracker:  python demo.py --tracker adaptive --config configs/adaptive.yaml
+backbone:
+  name: "dinov3_vitl16"
+device: "cuda"
+adaptive:
+  # Coarse (DINO)
+  template_patches: 12        # target spans 6 patches with template_scale 2.0
+  template_scale: 2.0
+  search_scale: 4.0
+  max_search_scale: 6.0
+  widen_factor: 1.25
+  widen_patience: 3
+  kernel_margin: 1
+  context_weight: 0.3
+  fg_mask: true
+  fg_mask_floor: 0.3
+  window_weight: 0.3
+  scales: [0.9639, 1.0, 1.0375]
+  scale_penalty: 0.9745
+  scale_lr: 0.59
+  # Memory
+  memory_weights: [0.3, 0.3, 0.4]   # anchor, long-term, short-term
+  long_lr: 0.05
+  short_len: 3
+  stats_window: 30
+  q_min: 0.8
+  id_min: 0.85
+  dino_only_strength: 0.5
+  # Fine (SuperPoint + LightGlue keyframes)
+  fine_enabled: false          # coarse-only: SuperPoint/LightGlue not loaded
+  max_keypoints: 1024
+  target_norm_px: 160
+  fine_crop_scale: 2.0
+  num_keyframes: 2
+  keyframe_interval: 10
+  min_inliers: 8
+  ransac_threshold: 3.0
+  agree_radius: 1.5
+  agree_scale_tol: 1.25
+  fine_size_lr: 0.5
+  # Motion
+  velocity_smoothing: 3

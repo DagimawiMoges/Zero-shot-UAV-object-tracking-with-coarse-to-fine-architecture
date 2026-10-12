@@ -1,0 +1,61 @@
+# adaptive_recovery.yaml + scale estimation that can actually change the box size.
+# The SiamFC defaults (+-3.75% steps, 0.9745 penalty) never let a non-1.0 scale win on
+# DINO cosine responses: in the full UAV123 run the box size changed <5% in 86/123 sequences.
+# Diff vs adaptive_recovery.yaml is marked with "# SCALE".
+backbone:
+  name: "dinov3_vitl16"
+device: "cuda"
+adaptive:
+  # Coarse (DINO)
+  template_patches: 12
+  template_scale: 2.0
+  search_scale: 5.0            # CHANGED 4.0 -> 5.0: peak can land +-1.83x target size from the prediction (was +-1.33x)
+  max_search_scale: 8.0        # CHANGED 6.0 -> 8.0
+  widen_factor: 1.25
+  widen_patience: 1            # CHANGED 3 -> 1: widen on the first bad frame
+  kernel_margin: 1
+  context_weight: 0.3
+  fg_mask: true
+  fg_mask_floor: 0.3
+  window_weight: 0.15          # CHANGED 0.3 -> 0.15: weaker pull towards the predicted center
+  scales: [0.9, 1.0, 1.1]      # SCALE: was [0.9639, 1.0, 1.0375]
+  scale_penalty: 0.99          # SCALE: was 0.9745 (multiplies the raw cosine response of non-1.0 scales)
+  scale_lr: 0.59               # max box change per frame: 0.59 x 10% = 5.9%
+  scale_q_min: 0.6             # SCALE: apply scale changes when q_rel >= 0.6 (was: only on memory-update frames,
+                               #   but a growing/shrinking target lowers q_rel, which froze the size exactly when it changed)
+  # Memory
+  memory_weights: [0.3, 0.3, 0.4]
+  long_lr: 0.05
+  short_len: 3
+  stats_window: 30
+  q_min: 0.8
+  id_min: 0.85
+  dino_only_strength: 0.5
+  # Fine (SuperPoint + LightGlue keyframes)
+  fine_enabled: false
+  max_keypoints: 1024
+  target_norm_px: 160
+  fine_crop_scale: 2.0
+  num_keyframes: 2
+  keyframe_interval: 10
+  min_inliers: 8
+  ransac_threshold: 3.0
+  agree_radius: 1.5
+  agree_scale_tol: 1.25
+  fine_size_lr: 0.5
+  # Motion
+  velocity_smoothing: 3
+  motion_min_history: 1        # NEW: use velocity from the 2nd tracked frame (was 2 samples)
+  motion_coast_frames: 5       # NEW: keep extrapolating through up to 5 low-quality frames
+  velocity_decay: 0.8          # NEW
+  # Recovery
+  widen_single_scale: false    # SCALE: was true; with widen_patience 1 it switched scale search off on most hard frames
+  stats_mode: "healthy"        # NEW: medians from healthy frames, so a lost tracker can't call a distractor "healthy"
+  stats_leak_every: 10         # NEW
+  redetect: true               # NEW: tiled re-detection while lost
+  redetect_patience: 5
+  redetect_interval: 5
+  redetect_grid: 3             # 3x3 tiles ~ 11x target size per axis at search_scale 5
+  redetect_batch: 3
+  redetect_q_min: 0.85
+  redetect_id_min: 0.85

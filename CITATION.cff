@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Blihat: Training-Free Zero-Shot Aerial Tracking via Multi-Scale Foundation Correlation and Geometry-Locked Keypoint Correspondence"
+authors:
+  - family-names: Wakumo
+    given-names: Dagimawi Moges
+license: Apache-2.0
+version: 0.1.0
+date-released: 2026-10-12
+repository-code: "https://github.com/DagimawiMoges/Zero-shot-UAV-object-tracking-with-coarse-to-fine-architecture"

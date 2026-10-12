@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "blihat"
+version = "0.1.0"
+description = "Training-free coarse-to-fine UAV object tracker using foundation features and geometric matching"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Dagimawi Moges Wakumo" }]
+requires-python = ">=3.10"
+keywords = ["object tracking", "UAV", "drone", "zero-shot", "DINOv3", "LightGlue"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    "torch>=2.1",
+    "torchvision>=0.16",
+    "transformers>=4.56.0",
+    "huggingface_hub",
+    "opencv-python>=4.8",
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "pyyaml>=6.0",
+    "tqdm",
+    "matplotlib",
+    "got10k",
+    "rembg>=2.0",
+]
+# LightGlue is not on PyPI: pip install git+https://github.com/cvg/LightGlue.git
+
+[project.optional-dependencies]
+dev = ["pytest", "ipython"]
+
+[project.urls]
+Repository = "https://github.com/DagimawiMoges/Zero-shot-UAV-object-tracking-with-coarse-to-fine-architecture"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["blihat*"]

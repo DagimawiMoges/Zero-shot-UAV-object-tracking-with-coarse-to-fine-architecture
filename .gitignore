@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.Python
+.ipynb_checkpoints/
+
+# Environments
+.env
+.venv/
+env/
+venv/
+env.bak/
+venv.bak/
+
+# Datasets, annotations and downloads (not redistributed)
+UAV123*/
+UAV20L*/
+DTB70*/
+anno*/
+*-1-001/
+data/
+datasets/
+
+# Run outputs
+results/
+runs/
+reports/
+debug/
+*.npz
+*.mp4
+*.avi
+*.jpg
+*.png
+
+# Model weights
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+
+# Unpublished paper drafts
+paper/
+
+# IDEs / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
