@@ -103,6 +103,42 @@ def _crop_resize(frame: np.ndarray, center, region_wh, out_px: int) -> np.ndarra
                           borderMode=cv2.BORDER_REPLICATE)
 
 
+def fine_fit_reliable(cfg, fr: Dict[str, Any], ref_center, target_size, frames_since_fine: int,
+                      max_offset: Optional[float] = None) -> Tuple[bool, str]:
+    """Is this LightGlue fit good enough to be the output box? A check on the fit
+    itself (support, consistency, plausibility), not an agreement test with DINO.
+
+    Shared by AdaptiveTracker (ref_center = DINO center) and KeypointTracker
+    (ref_center = motion-predicted center), so both use exactly the same gate.
+    max_offset overrides cfg.fine_max_offset (in target sizes).
+    """
+    if not fr['success']:
+        return False, fr.get('fail_reason', '') or 'no_fit'
+    tw, th = target_size
+    if cfg.fine_min_target_px > 0 and np.sqrt(tw * th) < cfg.fine_min_target_px:
+        return False, 'small'
+    if fr['num_inliers'] < cfg.fine_min_inliers:
+        return False, 'inliers'
+    if fr['inlier_ratio'] < cfg.fine_min_inlier_ratio:
+        return False, 'ratio'
+    ratio = np.sqrt(fr['size'][0] * fr['size'][1] / max(tw * th, 1e-6))
+    # The allowed step compounds while no fine box was used; after fine_scale_step_frames
+    # such frames the previous size is no reference any more and the check is off,
+    # so a stale size can never lock LightGlue out for good.
+    # With fine_scale_lock the check never switches off: the step is capped at
+    # fine_max_scale_step ** fine_scale_step_frames (a weak fit after a fallback stretch
+    # cannot rescale the box in one go).
+    k = max(1, cfg.fine_scale_step_frames)
+    if cfg.fine_scale_lock or frames_since_fine < k:
+        step = cfg.fine_max_scale_step ** min(1 + frames_since_fine, k)
+        if not (1 / step <= ratio <= step):
+            return False, 'scale_jump'
+    off = np.hypot((fr['center'][0] - ref_center[0]) / tw, (fr['center'][1] - ref_center[1]) / th)
+    if off > (cfg.fine_max_offset if max_offset is None else max_offset):
+        return False, 'offset'
+    return True, ''
+
+
 class AdaptiveTracker:
     """Never-lost tracker with dynamic DINO template memory and keyframe geometry."""
 
@@ -387,34 +423,8 @@ class AdaptiveTracker:
     # Fine-box reliability ("fine" / "dino" box sources)
     # ------------------------------------------------------------------
     def _fine_reliable(self, fr: Dict[str, Any], ref_center) -> Tuple[bool, str]:
-        """Is this LightGlue fit good enough to be the output box? A check on the fit
-        itself (support, consistency, plausibility), not an agreement test with DINO."""
-        cfg = self.cfg
-        if not fr['success']:
-            return False, fr.get('fail_reason', '') or 'no_fit'
-        tw, th = self.target_size
-        if cfg.fine_min_target_px > 0 and np.sqrt(tw * th) < cfg.fine_min_target_px:
-            return False, 'small'
-        if fr['num_inliers'] < cfg.fine_min_inliers:
-            return False, 'inliers'
-        if fr['inlier_ratio'] < cfg.fine_min_inlier_ratio:
-            return False, 'ratio'
-        ratio = np.sqrt(fr['size'][0] * fr['size'][1] / max(tw * th, 1e-6))
-        # The allowed step compounds while no fine box was used; after fine_scale_step_frames
-        # such frames the previous (DINO) size is no reference any more and the check is off,
-        # so a stale DINO size can never lock LightGlue out for good.
-        # With fine_scale_lock the check never switches off: the step is capped at
-        # fine_max_scale_step ** fine_scale_step_frames (a weak fit after a fallback stretch
-        # cannot rescale the box in one go).
-        k = max(1, cfg.fine_scale_step_frames)
-        if cfg.fine_scale_lock or self.frames_since_fine < k:
-            step = cfg.fine_max_scale_step ** min(1 + self.frames_since_fine, k)
-            if not (1 / step <= ratio <= step):
-                return False, 'scale_jump'
-        off = np.hypot((fr['center'][0] - ref_center[0]) / tw, (fr['center'][1] - ref_center[1]) / th)
-        if off > cfg.fine_max_offset:
-            return False, 'offset'
-        return True, ''
+        """Is this LightGlue fit good enough to be the output box? See fine_fit_reliable()."""
+        return fine_fit_reliable(self.cfg, fr, ref_center, self.target_size, self.frames_since_fine)
 
     def _fine_observation(self, frame: np.ndarray, co: Dict[str, Any], center, size):
         """DINO memory observation at the fine box (see cfg.fine_memory_obs)."""

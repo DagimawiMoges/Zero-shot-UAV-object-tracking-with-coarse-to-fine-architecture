@@ -140,6 +140,10 @@ observation at the LightGlue box; keyframes are added only from reliable fits on
         --config configs/blihat_final.yaml --result-dir runs/full --name blihat_final
   Coarse-only baseline with identical tracking:
     ... --config configs/blihat_final.yaml --set adaptive.fine_enabled=false --name coarse_final
+  SuperPoint + LightGlue only (no DINO; same keypoint memory, gate and frozen config):
+    ... --tracker keypoint --config configs/blihat_final.yaml --name keypoint_final
+  Tuned SuperPoint + LightGlue-only baseline (same selection protocol as Blihat, scale subset):
+    python eval/sweep_keypoint.py --dataset-root $ROOT   (prints the full-benchmark command for the best variant)
   Scale-subset ablation: --sequences eval/uav123_scale.txt --max-frames 300, variants via --set:
     coarse: adaptive.box_source=dino | +LG: configs/adaptive_fine_box.yaml | final: configs/blihat_final.yaml
   Analysis: eval/analyze_uav123.py (scores, --baseline), eval/analyze_fine_box.py (box quality,

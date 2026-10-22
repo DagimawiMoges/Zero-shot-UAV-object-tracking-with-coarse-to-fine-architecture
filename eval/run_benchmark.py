@@ -18,12 +18,14 @@ from typing import Optional
 from blihat.config import Config
 from blihat.tracker import CascadeTracker
 from blihat.adaptive_tracker import AdaptiveTracker
+from blihat.keypoint_tracker import KeypointTracker
 
-TRACKERS = {'cascade': CascadeTracker, 'adaptive': AdaptiveTracker}
+# adaptive = Blihat; keypoint = SuperPoint + LightGlue only (no DINO, ablation baseline)
+TRACKERS = {'cascade': CascadeTracker, 'adaptive': AdaptiveTracker, 'keypoint': KeypointTracker}
 
 
 def build_tracker(config: Config, tracker_type: str = 'adaptive'):
-    """Instantiate a tracker by name ('adaptive' or 'cascade')."""
+    """Instantiate a tracker by name ('adaptive', 'keypoint' or 'cascade')."""
     if tracker_type not in TRACKERS:
         raise ValueError(f"Unknown tracker '{tracker_type}'. Choose from {list(TRACKERS)}")
     return TRACKERS[tracker_type](config)
@@ -466,14 +468,15 @@ def main():
                         help='Root directory for got10k-supported datasets')
     parser.add_argument('--result-dir', type=str, default='./results',
                         help='Directory to save results')
-    parser.add_argument('--tracker', type=str, default='adaptive', choices=['adaptive', 'cascade'],
-                        help='Tracker variant to evaluate')
+    parser.add_argument('--tracker', type=str, default='adaptive', choices=list(TRACKERS),
+                        help='adaptive = Blihat; keypoint = SuperPoint+LightGlue only (no DINO); '
+                             'cascade = original simple cascade')
     parser.add_argument('--report-dir', type=str, default=None,
                         help='Where got10k writes reports (default: <result-dir>/reports)')
     parser.add_argument('--sequences', type=str, default=None,
                         help='Only run these sequences: comma-separated names or a .txt file (one per line)')
     parser.add_argument('--name', type=str, default=None,
-                        help='Tracker name used for the results folder (default: Blihat, or Blihat-cascade)')
+                        help='Tracker name used for the results folder (default: Blihat, or Blihat-<tracker>)')
     parser.add_argument('--set', action='append', default=[], metavar='SECTION.KEY=VALUE',
                         help='Override a config value, e.g. --set adaptive.scale_penalty=1.0 '
                              '--set "adaptive.scales=[0.9,1.0,1.1]" (repeatable)')

@@ -29,7 +29,7 @@ Frame → search crop → DINOv3 features → correlation with template memory �
                                                                      └─ fail → DINO box
 ```
 
-Two trackers are included:
+Three trackers are included:
 
 - **`AdaptiveTracker`** (`blihat/adaptive_tracker.py`): the Blihat tracker used for all reported results (`--tracker adaptive`, the default)
   - *DINO feature memory* (`blihat/coarse/memory.py`): anchor (frame 1) + long-term EMA + short-term ring buffer, combined into one weighted kernel. Updates are gated by *relative* quality (peak vs. its running median, similarity to the anchor vs. its running median), so no absolute thresholds on DINO scores are needed.
@@ -39,6 +39,7 @@ Two trackers are included:
     - `fine` (final config): DINO tracks, LightGlue gives the box when the fit is reliable (inlier count, inlier ratio, per-frame size step, offset from the DINO center).
     - `agree`: the fine box is used, and memories are updated, only when the fine and DINO estimates agree.
     - `dino`: the fine stage runs and is logged, but the output equals a coarse-only run (a box-quality probe for `eval/analyze_fine_box.py`).
+- **`KeypointTracker`** (`blihat/keypoint_tracker.py`): SuperPoint + LightGlue **without DINO**, the ablation baseline for the fine stage (`--tracker keypoint`). It reuses Blihat's keypoint memory, reliability gate, motion prior and frozen settings. The search center is the motion prediction instead of the DINO peak. When the fit is unreliable it holds the box. After failures it widens the match crop up to the same 8× target size that Blihat's coarse search reaches. It has no re-detection and needs no DINOv3 download.
 - **`CascadeTracker`** (`blihat/tracker.py`): the original, simpler cascade with a single updating template (`--tracker cascade`, `configs/default.yaml`).
 
 ## Installation
@@ -82,6 +83,10 @@ python eval/run_benchmark.py --tracker adaptive --config configs/blihat_final.ya
     --set adaptive.fine_enabled=false \
     --dataset UAV123 --dataset-root /path/to/UAV123 --result-dir runs/full --name coarse_final
 
+# SuperPoint + LightGlue only (no DINO), same frozen config
+python eval/run_benchmark.py --tracker keypoint --config configs/blihat_final.yaml \
+    --dataset UAV123 --dataset-root /path/to/UAV123 --result-dir runs/full --name keypoint_final
+
 # Score a result folder (optionally against a baseline)
 python eval/analyze_uav123.py --results runs/full/UAV123/blihat_final \
     --anno /path/to/UAV123/anno/UAV123 --baseline runs/full/UAV123/coarse_final
@@ -96,6 +101,7 @@ Analysis scripts:
 | `eval/analyze_uav123.py` | Success/precision per sequence, class and attribute; comparison to a baseline |
 | `eval/analyze_fine_box.py` | Box quality of the DINO vs. LightGlue box and how often each is used |
 | `eval/analyze_diagnostics.py` | Re-detection events and silent losses from per-frame diagnostics |
+| `eval/sweep_keypoint.py` | Tunes the SuperPoint+LightGlue-only baseline on the UAV123 scale subset (same protocol as Blihat's ablation) |
 | `eval/check_features.py` | Quick check of how discriminative the DINO response is |
 
 ### Debug output
@@ -118,7 +124,8 @@ In your own loop, set `tracker.debug = True` and pass `result['debug']` to `blih
 CPU-only smoke test: runs `AdaptiveTracker` with a fake DINO backbone on a synthetic sequence (no GPU or model download; the fine stage runs if LightGlue is installed):
 
 ```bash
-python tests/run_seq.py . blihat_final.yaml /tmp/out.npz --n 30
+python tests/run_seq.py . blihat_final.yaml /tmp/out.npz --n 30                     # Blihat
+python tests/run_seq.py . blihat_final.yaml /tmp/out.npz --n 30 --tracker keypoint  # LightGlue only
 ```
 
 ## Project structure
@@ -127,6 +134,7 @@ python tests/run_seq.py . blihat_final.yaml /tmp/out.npz --n 30
 Blihat/
 ├── blihat/
 │   ├── adaptive_tracker.py   # AdaptiveTracker (reported results)
+│   ├── keypoint_tracker.py   # KeypointTracker (SuperPoint + LightGlue only)
 │   ├── tracker.py            # CascadeTracker (baseline cascade)
 │   ├── config.py             # Dataclass configuration + YAML loading
 │   ├── backbone/             # DINOv3 / DINOv2 feature extraction

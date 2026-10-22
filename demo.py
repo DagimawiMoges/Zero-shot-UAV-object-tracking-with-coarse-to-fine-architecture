@@ -19,6 +19,7 @@ import time
 from blihat.config import Config
 from blihat.tracker import CascadeTracker
 from blihat.adaptive_tracker import AdaptiveTracker
+from blihat.keypoint_tracker import KeypointTracker
 from blihat.utils.debug_viz import DebugRecorder
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
@@ -31,7 +32,7 @@ def main():
     parser.add_argument('--bbox', type=str, default=None, help='Initial bbox as x,y,w,h (default: ROI selector)')
     parser.add_argument('--config', type=str, default=None, help='Path to config YAML')
     parser.add_argument('--save', type=str, default=None, help='Save output video to file (prefix)')
-    parser.add_argument('--tracker', type=str, default='adaptive', choices=['adaptive', 'cascade'],
+    parser.add_argument('--tracker', type=str, default='adaptive', choices=['adaptive', 'keypoint', 'cascade'],
                         help='Tracker variant')
     parser.add_argument('--debug-dir', type=str, default=None,
                         help='Save the queried template and DINO heatmap of every frame here '
@@ -89,7 +90,8 @@ def main():
 
     # Initialize tracker
     logger.info(f"Initializing tracker with bbox: {bbox}")
-    tracker = AdaptiveTracker(config) if args.tracker == 'adaptive' else CascadeTracker(config)
+    trackers = {'adaptive': AdaptiveTracker, 'keypoint': KeypointTracker, 'cascade': CascadeTracker}
+    tracker = trackers[args.tracker](config)
     tracker.init(frame, bbox)
 
     recorder = None
@@ -136,6 +138,7 @@ def main():
             'blend': (255, 255, 0),    # Cyan
             'lost': (0, 0, 255),       # Red
             'redetect': (255, 0, 255), # Magenta
+            'hold': (0, 165, 255),     # Orange (keypoint tracker: no reliable fit)
         }
         color = color_map.get(branch, (255, 255, 255))
 
