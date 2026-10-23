@@ -42,8 +42,10 @@ debug/
 *.safetensors
 *.onnx
 
-# Unpublished paper drafts
+# Unpublished paper drafts and generated documents
 paper/
+Claude outputs/
+*.pdf
 
 # IDEs / OS
 .idea/
