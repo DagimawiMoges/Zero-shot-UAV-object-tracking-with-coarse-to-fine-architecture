@@ -1,5 +1,9 @@
 # Blihat: Training-Free Coarse-to-Fine UAV Object Tracking
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23866309.svg)](https://doi.org/10.5281/zenodo.23866309)
+
+**Paper (preprint):** [Training-Free Zero-Shot Aerial Tracking via Multi-Scale Foundation Correlation and Geometry-Locked Keypoint Correspondence](https://doi.org/10.5281/zenodo.23866309)
+
 Blihat is a zero-shot single-object tracker for drone (UAV) footage. It needs no training and no fine-tuning:
 
 - **Coarse stage — where is the target?** Frozen **DINOv3** features (ViT-L/16) are correlated with an adaptive template memory over a multi-scale search region.
@@ -167,11 +171,16 @@ It builds on third-party models that have **their own licenses**, which are not 
 
 ## Citation
 
+If you use this code or the results, please cite the preprint:
+
 ```bibtex
 @misc{wakumo2026blihat,
-  title  = {Blihat: Training-Free Zero-Shot Aerial Tracking via Multi-Scale Foundation Correlation and Geometry-Locked Keypoint Correspondence},
-  author = {Wakumo, Dagimawi Moges},
-  year   = {2026},
-  howpublished = {\url{https://github.com/DagimawiMoges/Zero-shot-UAV-object-tracking-with-coarse-to-fine-architecture}}
+  author    = {Wakumo, Dagimawi Moges},
+  title     = {Training-Free Zero-Shot Aerial Tracking via Multi-Scale Foundation Correlation and Geometry-Locked Keypoint Correspondence},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.23866309},
+  url       = {https://doi.org/10.5281/zenodo.23866309},
+  note      = {Preprint}
 }
 ```
